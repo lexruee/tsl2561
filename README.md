@@ -1,6 +1,6 @@
 # TSL2561
 
-Linux C driver and Python Bindings for the TSL2561 sensor.
+Raspberry Pi C driver and Python Bindings for the TSL2561 sensor.
 
 This driver is basically a port of the [Adafruit TSL2561 Light Sensor Driver](https://github.com/adafruit/Adafruit_TSL2561).
 
