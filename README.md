@@ -1,5 +1,6 @@
 # TSL2561
-A driver written in c for the TSL2561 sensor.
+
+Linux C driver and Python Bindings for the TSL2561 sensor.
 
 This driver is basically a port of the [Adafruit TSL2561 Light Sensor Driver](https://github.com/adafruit/Adafruit_TSL2561).
 
@@ -8,9 +9,10 @@ This driver is basically a port of the [Adafruit TSL2561 Light Sensor Driver](ht
 Install the following packages:
 * i2c-tools 
 * libi2c-dev
+* python-dev
 
 ```
-sudo apt-get install i2c-tools libi2c-dev
+sudo apt-get install i2c-tools libi2c-dev python-dev
 ```
 
 In a next step we configure i2c on the Raspberry Pi. 
