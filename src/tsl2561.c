@@ -489,7 +489,7 @@ void tsl2561_close(void *_tsl) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
 	
 	if(close(tsl->file) < 0)
-		DEBUG("error: %s close() failed\n", bmp->i2c_device);
+		DEBUG("error: %s close() failed\n", tsl->i2c_device);
 	
 	free(tsl->i2c_device); // free string
 	tsl->i2c_device = NULL;
