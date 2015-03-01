@@ -255,6 +255,7 @@ void* tsl2561_init(int address, const char* i2c_device_filepath) {
 		return NULL;
 	}
 
+	// copy string
 	strcpy(tsl->i2c_device, i2c_device_filepath);
 	
 	// open i2c device
@@ -400,9 +401,13 @@ int tsl2561_disable(void *_tsl) {
 void tsl2561_close(void *_tsl) {
 	DEBUG("close tsl2561 device\n");
 	tsl2561_t *tsl = TO_TSL(_tsl);
-	free(tsl->i2c_device);
+	
+	if(close(tsl->file) < 0)
+		DEBUG("error: %s close() failed\n", bmp->i2c_device);
+	
+	free(tsl->i2c_device); // free string
 	tsl->i2c_device = NULL;
-	free(tsl);
+	free(tsl); // free tsl structure
 	_tsl = NULL;
 } 
 
