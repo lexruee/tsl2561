@@ -7,9 +7,11 @@
  *
  * This driver is a port of Adafruit TSL2561 Light Sensor Driver.
  * 
+ * The original driver is ritten by Kevin (KTOWN) Townsend 
+ * for Adafruit Industries
+ * 
  * source: https://github.com/adafruit/Adafruit_TSL2561
  * 
- *
  */
 
 #define TSL2561_I2C_ADDR_LOW 0x29
@@ -31,7 +33,7 @@ int tsl2561_disable(void *_tsl);
 void* tsl2561_init(int address, const char *i2c_device_filepath);
 void tsl2561_close(void *_tsl);
 
-int tsl2561_set_timing(void *_tsl, int integration_time, int gain);
+void tsl2561_set_timing(void *_tsl, int integration_time, int gain);
 void tsl2561_set_gain(void *_tsl, int gain);
 void tsl2561_set_integration_time(void *_tsl, int ingeration_time);
 void tsl2561_set_type(void *_tsl, int type);

@@ -7,9 +7,11 @@
  *
  * This driver is a port of Adafruit TSL2561 Light Sensor Driver.
  * 
+ * The original driver is ritten by Kevin (KTOWN) Townsend 
+ * for Adafruit Industries
+ * 
  * source: https://github.com/adafruit/Adafruit_TSL2561
  * 
- *
  */
 
 
@@ -33,7 +35,6 @@
  * Define debug function.
  *
  */
-
 #if __TSL2561_DEBUG__				
 #define DEBUG(...)	printf(__VA_ARGS__)
 #else
@@ -45,7 +46,6 @@
  * Shortcut to cast void pointer to a tsl2561_t pointer.
  *
  */
-
 #define TO_TSL(x)	(tsl2561_t*) x
 
 
@@ -53,7 +53,6 @@
  * TSL2561 constants.
  *
  */
-
 #define TSL2561_REG_CTRL 0x00
 #define TSL2561_REG_TIMING 0x01
 
@@ -69,7 +68,10 @@
 #define TSL2561_CTRL_PWR_OFF 0x00
 
 
-// Autogain thresholds
+
+/* 
+ * Autogain thresholds
+ */
 #define TSL2561_AGC_THI_13MS 4850	// Max value at Ti 13ms = 5047
 #define TSL2561_AGC_TLO_13MS 100	
 #define TSL2561_AGC_THI_101MS 36000 	// Max value at Ti 101ms = 37177
@@ -77,18 +79,21 @@
 #define TSL2561_AGC_THI_402MS 63000	// Max value at Ti 402ms = 65535
 #define TSL2561_AGC_TLO_402MS 500	
 
-// Clipping thresholds
+
+
+/*
+ * Clipping thresholds
+ */
 #define TSL2561_CLIPPING_13MS 4900
 #define TSL2561_CLIPPING_101MS 37000
 #define TSL2561_CLIPPING_402MS 65000
 
 
+
 /*
  * Constats for simplified lux calculation
  * according TAOS Inc.
- *
  */
-
 #define LUX_SCALE 14
 #define RATIO_SCALE 9
 
@@ -96,7 +101,11 @@
 #define CH_SCALE_TINT0 0x7517
 #define CH_SCALE_TINT1 0x0FE7
 
-// T, FN, and CL Package coefficients
+
+
+/* 
+ * T, FN, and CL Package coefficients
+ */
 #define TSL2561_K1T 0x0040
 #define TSL2561_B1T 0x01F2
 #define TSL2561_M1T 0x01BE
@@ -122,7 +131,11 @@
 #define TSL2561_B8T 0x0000
 #define TSL2561_M8T 0x0000
 
-// CS package coefficients
+
+
+/* 
+ * CS package coefficients
+ */
 #define TSL2561_K1C 0x0043
 #define TSL2561_B1C 0x0204
 #define TSL2561_M1C 0x01AD
@@ -165,6 +178,7 @@ typedef struct {
 } tsl2561_t;
 
 
+
 /*
  * Prototypes for helper functions.
  */
@@ -176,6 +190,20 @@ unsigned long tsl2561_compute_lux(void *_tsl, int visible, int channel1);
 
 
 
+/*
+ * Implemetation of the helper functions
+ */
+
+
+ 
+/*
+ * Writes a byte on the i2c bus.
+ * 
+ * @param tsl sensor
+ * @param register
+ * @param value
+ * @return data
+ */
 uint8_t tsl2561_write_byte_data(void *_tsl, uint8_t reg, uint8_t value) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
 	uint8_t data = i2c_smbus_write_byte_data(tsl->file, reg, value);
@@ -189,6 +217,15 @@ uint8_t tsl2561_write_byte_data(void *_tsl, uint8_t reg, uint8_t value) {
 }
 
 
+
+/*
+ * Writes a word on the i2c bus.
+ * 
+ * @param tsl sensor
+ * @param register
+ * @param value
+ * @return data
+ */
 uint16_t tsl2561_write_word_data(void *_tsl, uint8_t reg, uint8_t value) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
 	uint16_t data = i2c_smbus_write_word_data(tsl->file, reg, value);
@@ -202,6 +239,14 @@ uint16_t tsl2561_write_word_data(void *_tsl, uint8_t reg, uint8_t value) {
 }
 
 
+
+/*
+ * Reads a word from the i2c bus.
+ * 
+ * @param tsl sensor
+ * @param register
+ * @return data
+ */
 int16_t tsl2561_read_word_data(void *_tsl, uint8_t reg) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
 
@@ -216,8 +261,34 @@ int16_t tsl2561_read_word_data(void *_tsl, uint8_t reg) {
 }
 
 
+
 /*
+ * Sets the address for the i2c device file.
+ * 
+ * @param tsl sensor
+ */
+int tsl2561_set_addr(void *_tsl) {
+	tsl2561_t* tsl = TO_TSL(_tsl);
+	int error;
+
+	if((error = ioctl(tsl->file, I2C_SLAVE, tsl->address)) < 0)
+		DEBUG("error: ioctl() failed\n");
+
+	return error;
+}
+
+
+/*
+ * Implementation of the interface functions
+ */
+ 
+
+/**
  * Creates a new TSL2561 sensor object with the specified i2c address and i2c device file path.
+ * 
+ * @param i2c address
+ * @param i2c device file path
+ * @return tsl sensor
  *
  * Possible i2c addresses are: 
  * 	0x29 	(low)
@@ -279,19 +350,12 @@ void* tsl2561_init(int address, const char* i2c_device_filepath) {
 }
 
 
-int tsl2561_set_addr(void *_tsl) {
-	tsl2561_t* tsl = TO_TSL(_tsl);
-	int error;
 
-	if((error = ioctl(tsl->file, I2C_SLAVE, tsl->address)) < 0)
-		DEBUG("error: ioctl() failed\n");
-
-	return error;
-}
-
-
-/*
+/**
  * Sets the type for this TSL2561 sensor.
+ * 
+ * @param tsl sensor
+ * @param type
  *
  * Possible type values are:
  *	0  represents T version (default) (Adafruit TSL2561 is a T version)
@@ -304,8 +368,13 @@ void tsl2561_set_type(void *_tsl, int type) {
 }
 
 
-/*
+
+/**
  * Sets the time integration and gain value for this TSL2561 sensor.
+ * 
+ * @param tsl sensor
+ * @param integration time
+ * @param gain
  *
  * Possible time integration values are:
  *      TSL2561_INTEGRATION_TIME_13MS
@@ -317,7 +386,7 @@ void tsl2561_set_type(void *_tsl, int type) {
  *      TSL2561_GAIN_16X
  *
  */
-int tsl2561_set_timing(void *_tsl, int integration_time, int gain) {
+void tsl2561_set_timing(void *_tsl, int integration_time, int gain) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
 
 	// update values
@@ -325,11 +394,15 @@ int tsl2561_set_timing(void *_tsl, int integration_time, int gain) {
 	tsl->gain = gain;
 
 	tsl2561_write_byte_data(_tsl, TSL2561_CMD_BIT | TSL2561_REG_TIMING, tsl->integration_time | tsl->gain);
-	return 0;
 }
 
-/*
+
+
+/**
  * Sets the gain value for this TSL2561 sensor.
+ * 
+ * @param tsl sensor
+ * @param gain
  *
  * Possible gain values are:
  * 	TSL2561_GAIN_0X
@@ -342,8 +415,12 @@ void tsl2561_set_gain(void *_tsl, int gain) {
 }
 
 
-/*
+
+/**
  * Sets the integration value for this TSL2561 sensor.
+ * 
+ * @param tsl sensor
+ * @param time value
  *
  * Possible time values are:
  *	TSL2561_INTEGRATION_TIME_13MS
@@ -356,9 +433,12 @@ void tsl2561_set_integration_time(void *_tsl, int time) {
 	tsl2561_set_timing(_tsl, time, tsl->gain);
 }
 
-/*
+
+
+/**
  * Enables autogain for this TSL2561 sensor.
- *
+ * 
+ * @param tsl sensor
  */
 void tsl2561_enable_autogain(void *_tsl) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
@@ -366,9 +446,11 @@ void tsl2561_enable_autogain(void *_tsl) {
 }
 
 
-/*
+
+/**
  * Disables autogain for this TSL2561 sensor.
  *
+ * @param tsl sensor
  */
 void tsl2561_disable_autogain(void *_tsl) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
@@ -376,27 +458,32 @@ void tsl2561_disable_autogain(void *_tsl) {
 }
 
 
-/*
+/**
  * Enables this TSL2561 sensor.
- *
+ * 
+ * @param tsl sensor
+ * @return error code
  */
 int tsl2561_enable(void *_tsl) {
 	return tsl2561_write_byte_data(_tsl, TSL2561_CMD_BIT | TSL2561_REG_CTRL, TSL2561_CTRL_PWR_ON);
 }
 
 
-/*
+/**
  * Disables this TSL2561 sensor.
  *
+ * @param tsl sensor
+ * @return error code
  */
 int tsl2561_disable(void *_tsl) {
 	return tsl2561_write_byte_data(_tsl, TSL2561_CMD_BIT | TSL2561_REG_CTRL, TSL2561_CTRL_PWR_OFF);
 }
 
 
-/*
+/**
  * Closes a TSL2561 object.
  *
+ * @param tsl sensor
  */
 void tsl2561_close(void *_tsl) {
 	DEBUG("close tsl2561 device\n");
