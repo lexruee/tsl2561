@@ -4,11 +4,10 @@
  * 
  * A driver written in C for the sensor TSL2561.
  *
- *
- * This driver is a port of Adafruit TSL2561 Light Sensor Driver.
+ * This driver is a port of the Adafruit TSL2561 Light Sensor Driver.
  * 
- * The original driver is ritten by Kevin (KTOWN) Townsend 
- * for Adafruit Industries
+ * The original driver is written by Kevin (KTOWN) Townsend 
+ * for Adafruit Industries.
  * 
  * source: https://github.com/adafruit/Adafruit_TSL2561
  * 
