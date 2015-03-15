@@ -186,7 +186,7 @@ uint8_t tsl2561_write_byte_data(void *_tsl, uint8_t reg, uint8_t value);
 uint16_t tsl2561_write_word_data(void *_tsl, uint8_t reg, uint8_t value) ;
 int16_t tsl2561_read_word_data(void *_tsl, uint8_t cmd);
 unsigned long tsl2561_compute_lux(void *_tsl, int visible, int channel1);
-
+void tsl2561_init_error_cleanup(void *_tsl);
 
 
 /*
@@ -277,6 +277,25 @@ int tsl2561_set_addr(void *_tsl) {
 }
 
 
+
+/*
+ * Frees allocated memory in the init function.
+ * 
+ * @param tsl2561 sensor
+ */
+void tsl2561_init_error_cleanup(void *_tsl) {
+	tsl2561_t* tsl = TO_TSL(_tsl);
+	
+	if(tsl->i2c_device != NULL) {
+		free(tsl->i2c_device);
+		tsl->i2c_device = NULL;
+	}
+	
+	free(tsl);
+	tsl = NULL;
+}
+
+
 /*
  * Implementation of the interface functions
  */
@@ -322,6 +341,7 @@ void* tsl2561_init(int address, const char* i2c_device_filepath) {
 	tsl->i2c_device = (char*) malloc(strlen(i2c_device_filepath) * sizeof(char));
 	if(tsl->i2c_device == NULL) {
 		DEBUG("error: malloc returns NULL pointer!\n");
+		tsl2561_init_error_cleanup(_tsl);
 		return NULL;
 	}
 
@@ -332,12 +352,15 @@ void* tsl2561_init(int address, const char* i2c_device_filepath) {
 	int file;
 	if((file = open(tsl->i2c_device, O_RDWR)) < 0) {
 		DEBUG("error: open() failed\n");
+		tsl2561_init_error_cleanup(_tsl);
 		return NULL;
 	}
 	tsl->file = file;
 
-	if(tsl2561_set_addr(_tsl) < 0)
+	if(tsl2561_set_addr(_tsl) < 0) {
+		tsl2561_init_error_cleanup(_tsl);
 		return NULL;
+	}
 
 	// setup i2c device
 	tsl2561_enable(_tsl);
@@ -485,6 +508,10 @@ int tsl2561_disable(void *_tsl) {
  * @param tsl sensor
  */
 void tsl2561_close(void *_tsl) {
+	if(_tsl == NULL) {
+		return;
+	}
+	
 	DEBUG("close tsl2561 device\n");
 	tsl2561_t *tsl = TO_TSL(_tsl);
 	

@@ -38,9 +38,13 @@ static int TSL2561_init(TSL2561_Object *self, PyObject *args, PyObject *kwds) {
     if(!PyArg_ParseTupleAndKeywords(args, kwds, "is", kwlist, &address, &i2c_device))
 		return -1;
 
-	if(i2c_device) 
+	if(i2c_device) {
 		self->tsl2561 = tsl2561_init(address, i2c_device);
-
+		if(self->tsl2561 == NULL) {
+			PyErr_SetString(PyExc_RuntimeError, "Cannot initialize sensor. Run program as root and check i2c device / address.");
+			return -1;
+		}
+	}
 	return 0;
 }
 
