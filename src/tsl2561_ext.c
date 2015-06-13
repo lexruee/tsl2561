@@ -1,11 +1,11 @@
 /*
  * @author 	Alexander Rüedlinger <a.rueedlinger@gmail.com>
  * @date 	22.02.2015
- * 
+ *
  * Python bindings for the TSL2561 driver written in C.
- * 
+ *
  */
- 
+
 #include <Python.h>
 #include <structmember.h>
 #include "tsl2561.h"
@@ -87,7 +87,7 @@ static PyObject *TSL2561_set_timing(TSL2561_Object *self, PyObject *args, PyObje
 
     if(!PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &time, &gain))
 		return NULL;
-		
+
 	tsl2561_set_timing(self->tsl2561, time, gain);
 	return Py_None;
 }
@@ -97,7 +97,7 @@ static PyObject *TSL2561_set_gain(TSL2561_Object *self, PyObject *args) {
 	int gain;
     if(!PyArg_ParseTuple(args, "i", &gain))
 		return NULL;
-		
+
 	tsl2561_set_gain(self->tsl2561, gain);
 	return Py_None;
 }
@@ -107,7 +107,7 @@ static PyObject *TSL2561_set_time(TSL2561_Object *self, PyObject *args) {
 	int time;
     if(!PyArg_ParseTuple(args, "i", &time))
 		return NULL;
-		
+
 	tsl2561_set_integration_time(self->tsl2561, time);
 	return Py_None;
 }
@@ -117,22 +117,22 @@ static PyObject *TSL2561_set_type(TSL2561_Object *self, PyObject *args) {
 	int type;
     if(!PyArg_ParseTuple(args, "i", &type))
 		return NULL;
-		
+
 	tsl2561_set_type(self->tsl2561, type);
 	return Py_None;
 }
 
 
 static PyMethodDef TSL2561_methods[] = {
-	{"lux", (PyCFunction) TSL2561_lux, METH_NOARGS, "Return the lux value"},
-	{"enable_autogain", (PyCFunction) TSL2561_enable_autogain, METH_NOARGS, "Enable autogain"},
-	{"disable_autogain", (PyCFunction) TSL2561_disable_autogain, METH_NOARGS, "Disable autogain"},
-	{"enable", (PyCFunction) TSL2561_enable, METH_NOARGS, "Enable sensor"},
-	{"disable", (PyCFunction) TSL2561_disable, METH_NOARGS, "Disable sensor"},
-	{"set_gain", (PyCFunction) TSL2561_set_gain, METH_VARARGS, "Set gain"},
-	{"set_time", (PyCFunction) TSL2561_set_time, METH_VARARGS, "Set time"},
-	{"set_type", (PyCFunction) TSL2561_set_type, METH_VARARGS, "Set type"},
-	{"set_timing", (PyCFunction) TSL2561_set_timing, METH_VARARGS, "Set timing"},
+	{"lux", (PyCFunction) TSL2561_lux, METH_NOARGS, "Returns a lx value"},
+	{"enable_autogain", (PyCFunction) TSL2561_enable_autogain, METH_NOARGS, "Enables autogain"},
+	{"disable_autogain", (PyCFunction) TSL2561_disable_autogain, METH_NOARGS, "Disables autogain"},
+	{"enable", (PyCFunction) TSL2561_enable, METH_NOARGS, "Enables this sensor"},
+	{"disable", (PyCFunction) TSL2561_disable, METH_NOARGS, "Disables this sensor"},
+	{"set_gain", (PyCFunction) TSL2561_set_gain, METH_VARARGS, "Sets gain"},
+	{"set_time", (PyCFunction) TSL2561_set_time, METH_VARARGS, "Sets time"},
+	{"set_type", (PyCFunction) TSL2561_set_type, METH_VARARGS, "Sets type"},
+	{"set_timing", (PyCFunction) TSL2561_set_timing, METH_VARARGS, "Sets timing"},
     {NULL}  /* Sentinel */
 };
 
@@ -192,16 +192,16 @@ static PyMethodDef module_methods[] = {
 
 PyMODINIT_FUNC initTSL2561(void) {
 	PyObject *m;
-	
+
 	if(PyType_Ready(&TSL2561_Type) < 0)
 		return;
-	
+
 	m = Py_InitModule3("TSL2561", module_methods, "TSL2561 extension module");
-	
+
 	if(m == NULL)
 		return;
-	
+
 	Py_INCREF(&TSL2561_Type);
 	PyModule_AddObject(m, "TSL2561", (PyObject *)&TSL2561_Type);
-	
+
 }
